@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Basic PWA and SEO Information -->
-    <title>My iOS Web App</title>
-    <meta name="description" content="A simple browser-based app for iOS.">
+    <title>Color Memory Game</title>
+    <meta name="description" content="A fun color memory game - remember the sequence!">
     
     <!--
       SECTION: PWA Manifest and Theme
     -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#007aff"> <!-- Blue theme color -->
+    <meta name="theme-color" content="#6366f1"> <!-- Purple theme color -->
 
     <!--
       SECTION: iOS Specific Meta Tags
@@ -20,13 +20,13 @@
     -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="My App">
+    <meta name="apple-mobile-web-app-title" content="Color Memory">
 
     <!-- Apple Touch Icons (for the home screen icon) -->
     <!-- Provide different sizes for different devices -->
-    <link rel="apple-touch-icon" href="https://placehold.co/120x120/007aff/white?text=App120" sizes="120x120">
-    <link rel="apple-touch-icon" href="https://placehold.co/152x152/007aff/white?text=App152" sizes="152x152">
-    <link rel="apple-touch-icon" href="https://placehold.co/180x180/007aff/white?text=App180" sizes="180x180">
+    <link rel="apple-touch-icon" href="https://placehold.co/120x120/6366f1/white?text=🎨120" sizes="120x120">
+    <link rel="apple-touch-icon" href="https://placehold.co/152x152/6366f1/white?text=🎨152" sizes="152x152">
+    <link rel="apple-touch-icon" href="https://placehold.co/180x180/6366f1/white?text=🎨180" sizes="180x180">
     
     <!--
       SECTION: Styling
@@ -47,17 +47,293 @@
                 padding-right: env(safe-area-inset-right);
             }
         }
+        
+        .color-button {
+            transition: all 0.3s ease;
+            transform: scale(1);
+        }
+        
+        .color-button:active,
+        .color-button.flash {
+            transform: scale(0.95);
+            filter: brightness(1.3);
+        }
+        
+        .pulse-animation {
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center h-screen">
+<body class="bg-gradient-to-br from-purple-100 to-pink-100 min-h-screen flex items-center justify-center">
 
-    <div class="text-center bg-white p-8 rounded-xl shadow-lg max-w-sm mx-auto">
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome!</h1>
-        <p class="text-gray-600">This is a browser-based app.</p>
-        <p class="mt-4 text-sm text-gray-500">To install, tap the Share icon in Safari and select 'Add to Home Screen'.</p>
+    <div class="text-center bg-white p-8 rounded-2xl shadow-2xl max-w-md mx-auto">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">🎨 Color Memory</h1>
+            <p class="text-gray-600">Remember the sequence and repeat it!</p>
+        </div>
+
+        <!-- Score Display -->
+        <div class="mb-6">
+            <div class="flex justify-between items-center bg-gray-50 rounded-lg p-4">
+                <div>
+                    <p class="text-sm text-gray-500">Level</p>
+                    <p class="text-2xl font-bold text-purple-600" id="level">1</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Best Score</p>
+                    <p class="text-2xl font-bold text-green-600" id="bestScore">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Status -->
+        <div class="mb-6">
+            <p class="text-lg font-semibold" id="gameStatus">Press START to begin!</p>
+        </div>
+
+        <!-- Color Buttons Grid -->
+        <div class="grid grid-cols-2 gap-4 mb-6" id="colorGrid">
+            <button class="color-button w-24 h-24 rounded-xl border-4 border-gray-300" 
+                    data-color="red" 
+                    style="background-color: #ef4444;"></button>
+            <button class="color-button w-24 h-24 rounded-xl border-4 border-gray-300" 
+                    data-color="blue" 
+                    style="background-color: #3b82f6;"></button>
+            <button class="color-button w-24 h-24 rounded-xl border-4 border-gray-300" 
+                    data-color="green" 
+                    style="background-color: #10b981;"></button>
+            <button class="color-button w-24 h-24 rounded-xl border-4 border-gray-300" 
+                    data-color="yellow" 
+                    style="background-color: #f59e0b;"></button>
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="space-y-3">
+            <button id="startButton" 
+                    class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                🎮 START GAME
+            </button>
+            <button id="resetButton" 
+                    class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                🔄 RESET
+            </button>
+        </div>
+
+        <!-- Install Instructions -->
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p class="text-sm text-blue-700">
+                💡 <strong>Install this game:</strong> Tap the Share icon in Safari and select 'Add to Home Screen'
+            </p>
+        </div>
     </div>
 
     <script>
+        // Game variables
+        let gameSequence = [];
+        let playerSequence = [];
+        let level = 1;
+        let gameActive = false;
+        let showingSequence = false;
+        let bestScore = localStorage.getItem('colorMemoryBestScore') || 0;
+
+        // Elements
+        const colorButtons = document.querySelectorAll('.color-button');
+        const startButton = document.getElementById('startButton');
+        const resetButton = document.getElementById('resetButton');
+        const levelDisplay = document.getElementById('level');
+        const bestScoreDisplay = document.getElementById('bestScore');
+        const gameStatus = document.getElementById('gameStatus');
+
+        // Initialize
+        bestScoreDisplay.textContent = bestScore;
+
+        // Color mapping
+        const colors = ['red', 'blue', 'green', 'yellow'];
+
+        // Audio context for sound effects
+        let audioContext;
+        const initAudio = () => {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        };
+
+        // Sound effects
+        const playSound = (frequency, duration = 200) => {
+            initAudio();
+            const oscillator = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            oscillator.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration / 1000);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration / 1000);
+        };
+
+        // Sound frequencies for each color
+        const soundFreqs = {
+            red: 220,
+            blue: 294,
+            green: 349,
+            yellow: 415
+        };
+
+        // Start new game
+        const startGame = () => {
+            gameSequence = [];
+            playerSequence = [];
+            level = 1;
+            gameActive = true;
+            levelDisplay.textContent = level;
+            startButton.textContent = '🎮 PLAYING...';
+            startButton.disabled = true;
+            nextLevel();
+        };
+
+        // Reset game
+        const resetGame = () => {
+            gameSequence = [];
+            playerSequence = [];
+            level = 1;
+            gameActive = false;
+            showingSequence = false;
+            levelDisplay.textContent = level;
+            gameStatus.textContent = 'Press START to begin!';
+            startButton.textContent = '🎮 START GAME';
+            startButton.disabled = false;
+            
+            // Reset button styles
+            colorButtons.forEach(button => {
+                button.classList.remove('flash', 'pulse-animation', 'shake');
+            });
+        };
+
+        // Add color to sequence and show it
+        const nextLevel = () => {
+            playerSequence = [];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            gameSequence.push(randomColor);
+            gameStatus.textContent = `Watch the sequence... Level ${level}`;
+            showSequence();
+        };
+
+        // Show the sequence to player
+        const showSequence = () => {
+            showingSequence = true;
+            let index = 0;
+            
+            const showNext = () => {
+                if (index < gameSequence.length) {
+                    const color = gameSequence[index];
+                    const button = document.querySelector(`[data-color="${color}"]`);
+                    
+                    // Flash button
+                    button.classList.add('flash');
+                    playSound(soundFreqs[color], 400);
+                    
+                    setTimeout(() => {
+                        button.classList.remove('flash');
+                        index++;
+                        setTimeout(showNext, 200);
+                    }, 600);
+                } else {
+                    showingSequence = false;
+                    gameStatus.textContent = 'Your turn! Repeat the sequence.';
+                }
+            };
+            
+            setTimeout(showNext, 500);
+        };
+
+        // Handle player input
+        const handleColorClick = (color) => {
+            if (!gameActive || showingSequence) return;
+            
+            const button = document.querySelector(`[data-color="${color}"]`);
+            button.classList.add('pulse-animation');
+            playSound(soundFreqs[color]);
+            
+            setTimeout(() => {
+                button.classList.remove('pulse-animation');
+            }, 500);
+            
+            playerSequence.push(color);
+            
+            // Check if current input is correct
+            const currentIndex = playerSequence.length - 1;
+            if (playerSequence[currentIndex] !== gameSequence[currentIndex]) {
+                // Wrong input - game over
+                gameOver();
+                return;
+            }
+            
+            // Check if sequence is complete
+            if (playerSequence.length === gameSequence.length) {
+                // Level complete!
+                level++;
+                levelDisplay.textContent = level;
+                
+                // Update best score
+                if (level - 1 > bestScore) {
+                    bestScore = level - 1;
+                    bestScoreDisplay.textContent = bestScore;
+                    localStorage.setItem('colorMemoryBestScore', bestScore);
+                }
+                
+                gameStatus.textContent = `Great! Level ${level} coming up...`;
+                setTimeout(nextLevel, 1500);
+            }
+        };
+
+        // Game over
+        const gameOver = () => {
+            gameActive = false;
+            gameStatus.textContent = `Game Over! Final Level: ${level}`;
+            startButton.textContent = '🎮 PLAY AGAIN';
+            startButton.disabled = false;
+            
+            // Shake animation for wrong answer
+            document.querySelector('.bg-white').classList.add('shake');
+            playSound(150, 800); // Error sound
+            
+            setTimeout(() => {
+                document.querySelector('.bg-white').classList.remove('shake');
+            }, 500);
+        };
+
+        // Event listeners
+        startButton.addEventListener('click', startGame);
+        resetButton.addEventListener('click', resetGame);
+
+        colorButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const color = button.getAttribute('data-color');
+                handleColorClick(color);
+            });
+        });
+
         // Register the Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
