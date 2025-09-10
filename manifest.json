@@ -1,23 +1,23 @@
 {
-"name": "Color Memory Game - Test Your Memory!",
-"short_name": "Color Memory",
-"description": "A fun and addictive color memory game. Remember the sequence and repeat it!",
-"start_url": "/",
-"display": "standalone",
-"background_color": "#ffffff",
-"theme_color": "#6366f1",
-"icons": [
-  {
-    "src": "./icon-192x192.png",
-    "sizes": "192x192",
-    "type": "image/png"
-  },
-  {
-    "src": "./icon-512x512.png",
-    "sizes": "512x512",
-    "type": "image/png"
-  }
-],
-"categories": ["games", "entertainment"],
-"orientation": "portrait"
+  "name": "Travel Checklist - Never Forget Anything!",
+  "short_name": "Travel Checklist",
+  "description": "Your personal travel checklist app. Organize and track everything you need for your trips.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "./icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["productivity", "travel", "lifestyle"],
+  "orientation": "portrait"
 }

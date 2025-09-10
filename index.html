@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Basic PWA and SEO Information -->
-    <title>Color Memory Game</title>
-    <meta name="description" content="A fun color memory game - remember the sequence!">
+    <title>Travel Checklist</title>
+    <meta name="description" content="Your personal travel checklist - never forget anything again!">
     
     <!--
       SECTION: PWA Manifest and Theme
@@ -20,7 +20,7 @@
     -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Color Memory">
+    <meta name="apple-mobile-web-app-title" content="Travel Checklist">
 
     <!-- Apple Touch Icons (for the home screen icon) -->
     <!-- Provide different sizes for different devices -->
@@ -48,291 +48,396 @@
             }
         }
         
-        .color-button {
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
             transition: all 0.3s ease;
-            transform: scale(1);
         }
         
-        .color-button:active,
-        .color-button.flash {
-            transform: scale(0.95);
-            filter: brightness(1.3);
+        .checklist-item.completed {
+            background: #f0fdf4;
+            border-color: #10b981;
+            opacity: 0.7;
         }
         
-        .pulse-animation {
-            animation: pulse 0.5s ease-in-out;
+        .checklist-item input[type="checkbox"] {
+            margin-right: 12px;
+            transform: scale(1.2);
         }
         
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+        .checklist-item.completed .item-text {
+            text-decoration: line-through;
+            color: #6b7280;
         }
         
-        .shake {
-            animation: shake 0.5s ease-in-out;
+        .category-header {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            padding: 12px 16px;
+            margin: 16px 0 8px 0;
+            border-radius: 8px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            transition: width 0.5s ease;
+        }
+        
+        .add-item-form {
+            display: flex;
+            margin: 12px 0;
+            gap: 8px;
+        }
+        
+        .add-item-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .add-item-btn {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #6366f1;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-purple-100 to-pink-100 min-h-screen flex items-center justify-center">
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
 
-    <div class="text-center bg-white p-8 rounded-2xl shadow-2xl max-w-md mx-auto">
+    <div class="max-w-md mx-auto bg-white shadow-2xl min-h-screen">
         <!-- Header -->
-        <div class="mb-6">
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">🎨 Color Memory</h1>
-            <p class="text-gray-600">Remember the sequence and repeat it!</p>
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
+            <h1 class="text-2xl font-bold flex items-center">
+                ✈️ Travel Checklist
+            </h1>
+            <p class="text-blue-100 text-sm mt-1">Never forget anything again!</p>
         </div>
 
-        <!-- Score Display -->
-        <div class="mb-6">
-            <div class="flex justify-between items-center bg-gray-50 rounded-lg p-4">
-                <div>
-                    <p class="text-sm text-gray-500">Level</p>
-                    <p class="text-2xl font-bold text-purple-600" id="level">1</p>
+        <!-- Progress Section -->
+        <div class="p-4">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="completedCount">0</div>
+                    <div class="stat-label">Completed</div>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-500">Best Score</p>
-                    <p class="text-2xl font-bold text-green-600" id="bestScore">0</p>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalCount">0</div>
+                    <div class="stat-label">Total Items</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="progressPercent">0%</div>
+                    <div class="stat-label">Progress</div>
                 </div>
             </div>
         </div>
 
-        <!-- Game Status -->
-        <div class="mb-6">
-            <p class="text-lg font-semibold" id="gameStatus">Press START to begin!</p>
+        <!-- Checklist Content -->
+        <div id="checklistContainer" class="px-4 pb-6">
+            <!-- Categories will be dynamically added here -->
         </div>
 
-        <!-- Color Buttons Grid -->
-        <div class="grid grid-cols-2 gap-4 mb-6" id="colorGrid">
-            <button class="color-button w-24 h-24 rounded-xl border-4 border-gray-300" 
-                    data-color="red" 
-                    style="background-color: #ef4444;"></button>
-            <button class="color-button w-24 h-24 rounded-xl border-4 border-gray-300" 
-                    data-color="blue" 
-                    style="background-color: #3b82f6;"></button>
-            <button class="color-button w-24 h-24 rounded-xl border-4 border-gray-300" 
-                    data-color="green" 
-                    style="background-color: #10b981;"></button>
-            <button class="color-button w-24 h-24 rounded-xl border-4 border-gray-300" 
-                    data-color="yellow" 
-                    style="background-color: #f59e0b;"></button>
-        </div>
-
-        <!-- Control Buttons -->
-        <div class="space-y-3">
-            <button id="startButton" 
-                    class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
-                🎮 START GAME
+        <!-- Action Buttons -->
+        <div class="fixed bottom-4 right-4 space-y-2">
+            <button id="addCategoryBtn" 
+                    class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg transition-colors">
+                📁 Add Category
             </button>
-            <button id="resetButton" 
-                    class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
-                🔄 RESET
+            <button id="resetBtn" 
+                    class="bg-red-600 hover:bg-red-700 text-white p-3 rounded-full shadow-lg transition-colors">
+                🔄 Reset All
             </button>
         </div>
 
         <!-- Install Instructions -->
-        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+        <div class="mx-4 mb-4 p-4 bg-blue-50 rounded-lg">
             <p class="text-sm text-blue-700">
-                💡 <strong>Install this game:</strong> Tap the Share icon in Safari and select 'Add to Home Screen'
+                💡 <strong>Install this app:</strong> Tap the Share icon and select 'Add to Home Screen'
             </p>
         </div>
     </div>
 
     <script>
-        // Game variables
-        let gameSequence = [];
-        let playerSequence = [];
-        let level = 1;
-        let gameActive = false;
-        let showingSequence = false;
-        let bestScore = localStorage.getItem('colorMemoryBestScore') || 0;
+        // Travel checklist data structure
+        let checklistData = {
+            categories: [
+                {
+                    id: 'documents',
+                    name: '📄 Documents & Money',
+                    emoji: '📄',
+                    items: [
+                        { id: 1, text: 'Passport/ID', completed: false },
+                        { id: 2, text: 'Flight tickets', completed: false },
+                        { id: 3, text: 'Hotel confirmations', completed: false },
+                        { id: 4, text: 'Travel insurance', completed: false },
+                        { id: 5, text: 'Credit cards', completed: false },
+                        { id: 6, text: 'Cash/local currency', completed: false }
+                    ]
+                },
+                {
+                    id: 'clothing',
+                    name: '👕 Clothing',
+                    emoji: '👕',
+                    items: [
+                        { id: 7, text: 'Underwear', completed: false },
+                        { id: 8, text: 'Socks', completed: false },
+                        { id: 9, text: 'T-shirts/shirts', completed: false },
+                        { id: 10, text: 'Pants/shorts', completed: false },
+                        { id: 11, text: 'Jacket/sweater', completed: false },
+                        { id: 12, text: 'Sleepwear', completed: false },
+                        { id: 13, text: 'Comfortable shoes', completed: false }
+                    ]
+                },
+                {
+                    id: 'electronics',
+                    name: '🔌 Electronics',
+                    emoji: '🔌',
+                    items: [
+                        { id: 14, text: 'Phone charger', completed: false },
+                        { id: 15, text: 'Power bank', completed: false },
+                        { id: 16, text: 'Camera', completed: false },
+                        { id: 17, text: 'Headphones', completed: false },
+                        { id: 18, text: 'Travel adapter', completed: false }
+                    ]
+                },
+                {
+                    id: 'toiletries',
+                    name: '🧴 Toiletries & Health',
+                    emoji: '🧴',
+                    items: [
+                        { id: 19, text: 'Toothbrush & toothpaste', completed: false },
+                        { id: 20, text: 'Shampoo/soap', completed: false },
+                        { id: 21, text: 'Medications', completed: false },
+                        { id: 22, text: 'Sunscreen', completed: false },
+                        { id: 23, text: 'First aid kit', completed: false }
+                    ]
+                }
+            ]
+        };
 
-        // Elements
-        const colorButtons = document.querySelectorAll('.color-button');
-        const startButton = document.getElementById('startButton');
-        const resetButton = document.getElementById('resetButton');
-        const levelDisplay = document.getElementById('level');
-        const bestScoreDisplay = document.getElementById('bestScore');
-        const gameStatus = document.getElementById('gameStatus');
-
-        // Initialize
-        bestScoreDisplay.textContent = bestScore;
-
-        // Color mapping
-        const colors = ['red', 'blue', 'green', 'yellow'];
-
-        // Audio context for sound effects
-        let audioContext;
-        const initAudio = () => {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        // Load data from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('travelChecklistData');
+            if (saved) {
+                checklistData = JSON.parse(saved);
             }
-        };
+        }
 
-        // Sound effects
-        const playSound = (frequency, duration = 200) => {
-            initAudio();
-            const oscillator = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            
-            oscillator.connect(gain);
-            gain.connect(audioContext.destination);
-            
-            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-            gain.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration / 1000);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + duration / 1000);
-        };
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('travelChecklistData', JSON.stringify(checklistData));
+        }
 
-        // Sound frequencies for each color
-        const soundFreqs = {
-            red: 220,
-            blue: 294,
-            green: 349,
-            yellow: 415
-        };
+        // Calculate progress
+        function calculateProgress() {
+            let totalItems = 0;
+            let completedItems = 0;
 
-        // Start new game
-        const startGame = () => {
-            gameSequence = [];
-            playerSequence = [];
-            level = 1;
-            gameActive = true;
-            levelDisplay.textContent = level;
-            startButton.textContent = '🎮 PLAYING...';
-            startButton.disabled = true;
-            nextLevel();
-        };
-
-        // Reset game
-        const resetGame = () => {
-            gameSequence = [];
-            playerSequence = [];
-            level = 1;
-            gameActive = false;
-            showingSequence = false;
-            levelDisplay.textContent = level;
-            gameStatus.textContent = 'Press START to begin!';
-            startButton.textContent = '🎮 START GAME';
-            startButton.disabled = false;
-            
-            // Reset button styles
-            colorButtons.forEach(button => {
-                button.classList.remove('flash', 'pulse-animation', 'shake');
+            checklistData.categories.forEach(category => {
+                totalItems += category.items.length;
+                completedItems += category.items.filter(item => item.completed).length;
             });
-        };
 
-        // Add color to sequence and show it
-        const nextLevel = () => {
-            playerSequence = [];
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            gameSequence.push(randomColor);
-            gameStatus.textContent = `Watch the sequence... Level ${level}`;
-            showSequence();
-        };
+            return { totalItems, completedItems };
+        }
 
-        // Show the sequence to player
-        const showSequence = () => {
-            showingSequence = true;
-            let index = 0;
+        // Update progress display
+        function updateProgress() {
+            const { totalItems, completedItems } = calculateProgress();
+            const percentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
+            document.getElementById('completedCount').textContent = completedItems;
+            document.getElementById('totalCount').textContent = totalItems;
+            document.getElementById('progressPercent').textContent = percentage + '%';
+            document.getElementById('progressBar').style.width = percentage + '%';
+        }
+
+        // Create checklist item HTML
+        function createChecklistItem(item, categoryId) {
+            return `
+                <div class="checklist-item ${item.completed ? 'completed' : ''}" data-item-id="${item.id}">
+                    <input type="checkbox" ${item.completed ? 'checked' : ''} 
+                           onchange="toggleItem(${item.id}, '${categoryId}')">
+                    <span class="item-text flex-1">${item.text}</span>
+                    <button onclick="deleteItem(${item.id}, '${categoryId}')" 
+                            class="text-red-500 hover:text-red-700 ml-2">🗑️</button>
+                </div>
+            `;
+        }
+
+        // Create category HTML
+        function createCategory(category) {
+            const completedCount = category.items.filter(item => item.completed).length;
+            const totalCount = category.items.length;
             
-            const showNext = () => {
-                if (index < gameSequence.length) {
-                    const color = gameSequence[index];
-                    const button = document.querySelector(`[data-color="${color}"]`);
+            return `
+                <div class="category" data-category-id="${category.id}">
+                    <div class="category-header">
+                        <span>${category.name}</span>
+                        <span class="text-sm">${completedCount}/${totalCount}</span>
+                    </div>
                     
-                    // Flash button
-                    button.classList.add('flash');
-                    playSound(soundFreqs[color], 400);
+                    <div class="add-item-form">
+                        <input type="text" class="add-item-input" placeholder="Add new item..." 
+                               onkeypress="handleAddItem(event, '${category.id}')">
+                        <button class="add-item-btn" onclick="addItem('${category.id}')">Add</button>
+                    </div>
                     
-                    setTimeout(() => {
-                        button.classList.remove('flash');
-                        index++;
-                        setTimeout(showNext, 200);
-                    }, 600);
-                } else {
-                    showingSequence = false;
-                    gameStatus.textContent = 'Your turn! Repeat the sequence.';
-                }
-            };
-            
-            setTimeout(showNext, 500);
-        };
+                    <div class="category-items">
+                        ${category.items.map(item => createChecklistItem(item, category.id)).join('')}
+                    </div>
+                </div>
+            `;
+        }
 
-        // Handle player input
-        const handleColorClick = (color) => {
-            if (!gameActive || showingSequence) return;
-            
-            const button = document.querySelector(`[data-color="${color}"]`);
-            button.classList.add('pulse-animation');
-            playSound(soundFreqs[color]);
-            
-            setTimeout(() => {
-                button.classList.remove('pulse-animation');
-            }, 500);
-            
-            playerSequence.push(color);
-            
-            // Check if current input is correct
-            const currentIndex = playerSequence.length - 1;
-            if (playerSequence[currentIndex] !== gameSequence[currentIndex]) {
-                // Wrong input - game over
-                gameOver();
-                return;
-            }
-            
-            // Check if sequence is complete
-            if (playerSequence.length === gameSequence.length) {
-                // Level complete!
-                level++;
-                levelDisplay.textContent = level;
-                
-                // Update best score
-                if (level - 1 > bestScore) {
-                    bestScore = level - 1;
-                    bestScoreDisplay.textContent = bestScore;
-                    localStorage.setItem('colorMemoryBestScore', bestScore);
-                }
-                
-                gameStatus.textContent = `Great! Level ${level} coming up...`;
-                setTimeout(nextLevel, 1500);
-            }
-        };
+        // Render entire checklist
+        function renderChecklist() {
+            const container = document.getElementById('checklistContainer');
+            container.innerHTML = checklistData.categories.map(createCategory).join('');
+            updateProgress();
+        }
 
-        // Game over
-        const gameOver = () => {
-            gameActive = false;
-            gameStatus.textContent = `Game Over! Final Level: ${level}`;
-            startButton.textContent = '🎮 PLAY AGAIN';
-            startButton.disabled = false;
+        // Toggle item completion
+        function toggleItem(itemId, categoryId) {
+            const category = checklistData.categories.find(cat => cat.id === categoryId);
+            const item = category.items.find(item => item.id === itemId);
+            item.completed = !item.completed;
             
-            // Shake animation for wrong answer
-            document.querySelector('.bg-white').classList.add('shake');
-            playSound(150, 800); // Error sound
+            saveData();
+            renderChecklist();
+        }
+
+        // Add new item
+        function addItem(categoryId) {
+            const category = checklistData.categories.find(cat => cat.id === categoryId);
+            const input = document.querySelector(`[data-category-id="${categoryId}"] .add-item-input`);
+            const text = input.value.trim();
             
-            setTimeout(() => {
-                document.querySelector('.bg-white').classList.remove('shake');
-            }, 500);
-        };
+            if (text) {
+                const newId = Math.max(...checklistData.categories.flatMap(cat => cat.items.map(item => item.id))) + 1;
+                category.items.push({
+                    id: newId,
+                    text: text,
+                    completed: false
+                });
+                
+                input.value = '';
+                saveData();
+                renderChecklist();
+            }
+        }
+
+        // Handle Enter key in add item input
+        function handleAddItem(event, categoryId) {
+            if (event.key === 'Enter') {
+                addItem(categoryId);
+            }
+        }
+
+        // Delete item
+        function deleteItem(itemId, categoryId) {
+            if (confirm('Delete this item?')) {
+                const category = checklistData.categories.find(cat => cat.id === categoryId);
+                category.items = category.items.filter(item => item.id !== itemId);
+                
+                saveData();
+                renderChecklist();
+            }
+        }
+
+        // Add new category
+        function addCategory() {
+            const name = prompt('Enter category name:');
+            if (name) {
+                const emoji = prompt('Enter emoji for category (optional):') || '📋';
+                const id = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+                
+                checklistData.categories.push({
+                    id: id,
+                    name: `${emoji} ${name}`,
+                    emoji: emoji,
+                    items: []
+                });
+                
+                saveData();
+                renderChecklist();
+            }
+        }
+
+        // Reset all items
+        function resetAll() {
+            if (confirm('Reset all items? This will uncheck everything but keep your list.')) {
+                checklistData.categories.forEach(category => {
+                    category.items.forEach(item => {
+                        item.completed = false;
+                    });
+                });
+                
+                saveData();
+                renderChecklist();
+            }
+        }
 
         // Event listeners
-        startButton.addEventListener('click', startGame);
-        resetButton.addEventListener('click', resetGame);
+        document.getElementById('addCategoryBtn').addEventListener('click', addCategory);
+        document.getElementById('resetBtn').addEventListener('click', resetAll);
 
-        colorButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const color = button.getAttribute('data-color');
-                handleColorClick(color);
-            });
-        });
+        // Initialize app
+        loadData();
+        renderChecklist();
 
         // Register the Service Worker
         if ('serviceWorker' in navigator) {

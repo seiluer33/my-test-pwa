@@ -1,12 +1,13 @@
-// A very simple service worker to demonstrate offline capability.
+// Travel Checklist PWA Service Worker
 
 // Name of the cache
-const CACHE_NAME = 'my-app-cache-v1';
+const CACHE_NAME = 'travel-checklist-v1';
 
 // List of files to cache
 const urlsToCache = [
   '/',
-  '/index.html'
+  '/index.html',
+  '/manifest.json'
 ];
 
 // Install event: triggered when the service worker is first installed.
